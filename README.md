@@ -28,9 +28,9 @@ If results are available for your search query, it will return a list containing
 ```json
 [
     {
+        "url": "https://en.wikipedia.org/wiki/Programming_language",
         "title": "Programming language - Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/Programming_language"
+        "description": "A programming language is a system of notation for writing computer programs. ... Most programming languages are text-based formal languages, but they may also be..."
     }
-...
 ]
 ```

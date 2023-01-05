@@ -1,8 +1,9 @@
+import typing
 import httpx
 import re
 
 
-def search(query : str) -> list[dict] | list:
+def search(query: str) -> typing.List[typing.Union[dict, str]]:
     """
     The Google search scraper for the Python programming language.
 
@@ -12,8 +13,9 @@ def search(query : str) -> list[dict] | list:
     return a list containing dict objects; otherwise, it will return an empty list.
     """
 
-    results: list = []
-    headers: dict = {
+    results: typing.List[typing.Union[dict, str]] = []
+
+    headers: typing.Dict[str, str] = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"
     }
 
@@ -22,12 +24,15 @@ def search(query : str) -> list[dict] | list:
     page: str = httpx.get(base_url.format(query), headers=headers).text
 
     pattern: str = '<div class="yuRUbf"><a href="(.*?)" data-jsarwt=".*?" ' \
-                   'data-usg=".*?" data-ved=".*?"><br><h3 class="LC20lb MBeuO DKV0Md">(.*?)</h3>'
+                   'data-usg=".*?" data-ved=".*?"><br><h3 class="LC20lb MBeuO DKV0Md">(.*?)</h3>.*?' \
+                   '<div class="VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf" style="-webkit-line-clamp:2">' \
+                   '<span>(.*?)</span></div>'
 
     for i in re.findall(pattern=pattern, string=page):
         results.append({
             "url": i[0],
-            "title": i[1]
+            "title": i[1],
+            "description": re.sub('<[^<>]+>', '', i[2])
         })
 
     return results
