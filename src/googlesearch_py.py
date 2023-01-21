@@ -16,7 +16,7 @@ def search(query: str, max_results:int=0, get_contents:bool=False, process_funct
 
     :param get_contents: If set to True, it will scrape the site for contents
 
-    :param get_contents: (optional) function to process the site's contents before returning the results
+    :param process_function: (optional) function to process the site's contents before returning the results
 
 
     :return: If results are available for your search query, it will
@@ -52,14 +52,17 @@ def search(query: str, max_results:int=0, get_contents:bool=False, process_funct
 
 def scrape(url, process_function=lambda text,*a,**kw : text, get_metadata = True, *args, **kwargs) -> typing.Dict[str, str]:
     if isinstance(url,list):
+        print(f"Scraping multiple urls... {url}")
+        multiResults ={}
         for u in url:
-            yield scrape(u, process_function=process_function, *args, **kwargs)
-    
+            multiResults[url] = scrape(u, process_function=process_function, *args, **kwargs)
+        return multiResults
+
     final_results: typing.Dict[str, str] = {
         "contents": httpx.get(url, headers=headers).text,
         "url":url
          }
-    final_results["contents"] = process_function(final_results, *args, **kwargs)
+    final_results["contents"] = process_function(final_results["contents"], *args, **kwargs)
     # Get the title and description of the url by using search
     if get_metadata:
         searched = search(query=url, max_results = 1, get_contents=False)
