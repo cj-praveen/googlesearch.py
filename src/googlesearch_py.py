@@ -2,8 +2,11 @@ import typing
 import httpx
 import re
 
+headers: typing.Dict[str, str] = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"
+    }
 
-def search(query: str) -> typing.List[typing.Union[dict, str]]:
+def search(query: str, max_results:int=0, get_contents:bool=False, process_function:function=lambda text,*a,**kw : text, *args, **kwargs) -> typing.List[typing.Union[dict, str]]:
     """
     The Google search scraper for the Python programming language.
 
@@ -14,11 +17,7 @@ def search(query: str) -> typing.List[typing.Union[dict, str]]:
     """
 
     results: typing.List[typing.Union[dict, str]] = []
-
-    headers: typing.Dict[str, str] = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"
-    }
-
+    
     base_url: str = "https://www.google.com/search?q={}&num=30&hl=en"
 
     page: str = httpx.get(base_url.format(query), headers=headers).text
@@ -35,4 +34,30 @@ def search(query: str) -> typing.List[typing.Union[dict, str]]:
             "description": re.sub('<[^<>]+>', '', i[2])
         })
 
+    if max_results != 0:
+        results = results[:abs(max_results)]
+    
+    if get_contents:
+        for result in results:
+            result["contents"] = scrape(result["url"], get_metadata=False)["contents"]
+
     return results
+
+def scrape(url, process_function=lambda text,*a,**kw : text, get_metadata = True, *args, **kwargs) -> typing.Dict[str, str]:
+    if isinstance(url,list):
+        for u in url:
+            yield scrape(u, process_function=process_function, *args, **kwargs)
+    
+    final_results: typing.Dict[str, str] = {
+        "contents": httpx.get(url, headers=headers).text,
+        "url":url
+         }
+    final_results["contents"] = process_function(final_results, *args, **kwargs)
+    # Get the title and description of the url by using search
+    if get_metadata:
+        searched = search(query=url, max_results = 1, get_contents=False)
+        if len(searched) > 0:
+            for k in searched[0]:
+                final_results[k] = searched[0][k]
+        
+    return final_results
