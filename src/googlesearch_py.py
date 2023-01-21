@@ -6,11 +6,18 @@ headers: typing.Dict[str, str] = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"
     }
 
-def search(query: str, max_results:int=0, get_contents:bool=False, process_function:function=lambda text,*a,**kw : text, *args, **kwargs) -> typing.List[typing.Union[dict, str]]:
+def search(query: str, max_results:int=0, get_contents:bool=False, process_function:typing.Callable=lambda text,*a,**kw : text, *args, **kwargs) -> typing.List[typing.Union[dict, str]]:
     """
     The Google search scraper for the Python programming language.
 
     :param query: The query that you want to get results for
+
+    :param max_results: The maximum number of results
+
+    :param get_contents: If set to True, it will scrape the site for contents
+
+    :param get_contents: (optional) function to process the site's contents before returning the results
+
 
     :return: If results are available for your search query, it will
     return a list containing dict objects; otherwise, it will return an empty list.
@@ -39,7 +46,7 @@ def search(query: str, max_results:int=0, get_contents:bool=False, process_funct
     
     if get_contents:
         for result in results:
-            result["contents"] = scrape(result["url"], get_metadata=False)["contents"]
+            result["contents"] = scrape(result["url"], process_function=process_function, get_metadata=False)["contents"]
 
     return results
 
