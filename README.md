@@ -17,7 +17,7 @@ import googlesearch_py
 
 query = "what is programming language"
 
-results = googlesearch_py.search(query)
+results = googlesearch_py.search(query, num=1)
 
 print(results)
 ```
