@@ -3,7 +3,7 @@ import httpx
 import re
 
 
-def search(query: str, num: int = 10, headers: Dict[str, str] ={"User-Agent":
+def search(query: str, num: int = 10, headers: Union[Dict[str, str], None] ={"User-Agent":
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"}) -> List[Union[dict, str]]:
 
     results: List[Union[dict, str]] = []
