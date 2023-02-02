@@ -1,5 +1,5 @@
 # googlesearch.py
-The Google search scraper for the Python programming language.
+a python wrapper for google.com
 
 ## Installation instruction
 - Python 3.6 or later is required.
